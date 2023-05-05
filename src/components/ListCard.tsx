@@ -6,6 +6,7 @@ import { FC, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../shared/store/hooks";
 import { updateAccount } from "../shared/store/modules/accountsSlice";
 import { task } from "../shared/types";
+import Alerts from "./Alerts";
 import { BasicCard } from "./BasicCard";
 
 const ListCard: FC<{ onValueChange: (value: number) => void }> = ({ onValueChange }) => {
@@ -16,33 +17,26 @@ const ListCard: FC<{ onValueChange: (value: number) => void }> = ({ onValueChang
 
     const [deletCard, setDeletCard] = useState<boolean>(false);
     const [confirmDelet, setConfirmDelet] = useState<boolean>(false);
+
     const [taskId, setTaskId] = useState<number>(0);
 
     useEffect(() => {
-        console.log(confirmDelet);
-
         if (confirmDelet) {
-            console.log("deu bom");
-            // setConfirmDelet(false);
+            setTimeout(() => {
+                setConfirmDelet(false);
+            }, 1500);
         }
-    }, [tasks]);
+    }, [confirmDelet]);
+
     const handleDelet = (id: number) => {
         setDeletCard(true);
         setTaskId(id);
     };
-    const handleValueChange = (value: boolean) => {
-        if (!value) {
-            setDeletCard(false);
-            return;
-        }
-        const index = tasks?.findIndex((item: { id: number }) => item.id === taskId);
-        tasks?.splice(index!, 1);
-        const userTasks = tasks! || [];
-        const newTasks: task[] = [...userTasks];
+    const handleValueChange = () => {
+        const newTasks: task[] = tasks?.filter((item: { id: number }) => item.id !== taskId) || [];
 
-        setConfirmDelet(true);
         setDeletCard(false);
-
+        setConfirmDelet(true);
         dispatch(
             updateAccount({
                 id,
@@ -53,6 +47,7 @@ const ListCard: FC<{ onValueChange: (value: number) => void }> = ({ onValueChang
 
     return (
         <>
+            {confirmDelet ? <Alerts severity="success" text="Tarefa excluida com sucesso!" /> : ""}
             <Box>
                 {tasks!.length ? (
                     tasks!.map((task: task, index: number) => {
